@@ -26,21 +26,26 @@ import qualified Data.Map        as M
 -- The preferred terminal program, which is used in a binding below and by
 -- certain contrib modules.
 --
-myTerminal = "/usr/bin/gnome-terminal"
+myTerminal = "/usr/bin/terminator"
 
 -- The command to lock the screen or show the screensaver.
 myScreensaver = "/usr/bin/xscreensaver-command -l"
 
+--
+myFileManager = "thunar"
+
 -- The command to take a selective screenshot, where you select
 -- what you'd like to capture on the screen.
-mySelectScreenshot = "select-screenshot"
+mySelectScreenshot = "spectacle -bcr"
 
 -- The command to take a fullscreen screenshot.
-myScreenshot = "screenshot"
+myScreenshot = "mate-screenshot"
 
 -- The command to use as a launcher, to launch commands that don't have
 -- preset keybindings.
-myLauncher = "$(yeganesh -x -- -fn 'monospace-8' -nb '#000000' -nf '#FFFFFF' -sb '#7C7C7C' -sf '#CEFFAC')"
+--myLauncher = "dmenu"
+myLauncher = "$(~/.cabal/bin/yeganesh -x -- -fn 'monospace-9' -nb '#000000' -nf '#FFFFFF' -sb '#7C7C7C' -sf '#CEFFAC')"
+--myLauncher = "$(dmenu_run)"
 
 -- Location of your xmobar.hs / xmobarrc
 myXmobarrc = "~/.xmonad/xmobar-single.hs"
@@ -50,7 +55,8 @@ myXmobarrc = "~/.xmonad/xmobar-single.hs"
 -- Workspaces
 -- The default number of workspaces (virtual screens) and their names.
 --
-myWorkspaces = ["1:term","2:web","3:code","4:vm","5:media"] ++ map show [6..9]
+myWorkspaces = ["1:web","2:emacs","3:term","4:X2GO","5:slack","6:skype","7:","8:", "9:media", "0:"]
+--myWorkspaces = ["1:web","2:emacs","3:term","4:X2GO","5:slack","6:skype","7:","8:", "9:media", "0:"] ++ map show [6..9]
 
 
 ------------------------------------------------------------------------
@@ -68,16 +74,30 @@ myWorkspaces = ["1:term","2:web","3:code","4:vm","5:media"] ++ map show [6..9]
 -- 'className' and 'resource' are used below.
 --
 myManageHook = composeAll
-    [ className =? "Chromium"       --> doShift "2:web"
-    , className =? "Google-chrome"  --> doShift "2:web"
+    [ className =? "Chromium"       --> doShift "1:web"
+    , className =? "Google-chrome"  --> doShift "1:web"
+    , className =? "Firefox"        --> doShift "1:web"
+    , className =? "Navigator"      --> doShift "1:web"
+    , className =? "emacs"          --> doShift "2:emacs"
+    , className =? "Emacs"          --> doShift "2:emacs"
+    , className =? "mate-terminal"  --> doShift "3:term"
+    , className =? "Mate-terminal"  --> doShift "3:term"
+    , className =? "NXAgent"        --> doShift "4:X2GO"
+    , className =? "Slack"          --> doShift "5:slack"
+    , className =? "Mattermost"     --> doShift "5:slack"
+    , className =? "Skype"          --> doShift "6:skype"
+    , className =? "zoom"           --> doShift "9:media"
+    , className =? "vlc"            --> doShift "9:media"
     , resource  =? "desktop_window" --> doIgnore
+    , className =? "Guake"          --> doFloat
     , className =? "Galculator"     --> doFloat
     , className =? "Steam"          --> doFloat
     , className =? "Gimp"           --> doFloat
     , resource  =? "gpicview"       --> doFloat
     , className =? "MPlayer"        --> doFloat
-    , className =? "VirtualBox"     --> doShift "4:vm"
-    , className =? "Xchat"          --> doShift "5:media"
+    , className =? "Alacritty"      --> doFloat
+    --, className =? "VirtualBox"     --> doShift "4:vm"
+    --, className =? "Xchat"          --> doShift "5:media"
     , className =? "stalonetray"    --> doIgnore
     , isFullscreen --> (doF W.focusDown <+> doFullFloat)]
 
@@ -152,6 +172,10 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
   , ((modMask .|. controlMask, xK_l),
      spawn myScreensaver)
 
+  -- Span File Manager
+  , ((modMask .|. controlMask, xK_e),
+     spawn myFileManager)
+
   -- Spawn the launcher using command specified by myLauncher.
   -- Use this to launch programs without a key binding.
   , ((modMask, xK_p),
@@ -164,6 +188,18 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
   -- Take a full screenshot using the command specified by myScreenshot.
   , ((modMask .|. controlMask .|. shiftMask, xK_p),
      spawn myScreenshot)
+
+  -- MPC
+  , ((modMask .|. controlMask, xK_p),
+     spawn "mpc toggle")
+
+  -- MPC
+  , ((modMask .|. controlMask, xK_bracketright),
+     spawn "mpc next")
+
+  -- MPC
+  , ((modMask .|. controlMask, xK_bracketleft),
+     spawn "mpc next")
 
   -- Mute volume.
   , ((0, xF86XK_AudioMute),
@@ -277,11 +313,11 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
   -- TODO: update this binding with avoidStruts, ((modMask, xK_b),
 
   -- Quit xmonad.
-  , ((modMask .|. shiftMask, xK_q),
+  , ((controlMask .|. modMask .|. shiftMask, xK_q),
      io (exitWith ExitSuccess))
 
   -- Restart xmonad.
-  , ((modMask, xK_q),
+  , ((modMask .|. shiftMask, xK_q),
      restart "xmonad" True)
   ]
   ++
